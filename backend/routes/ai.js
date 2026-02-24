@@ -23,29 +23,26 @@ router.post('/notes/:noteId/summarize', async (req, res) => {
       const startTime = Date.now();
       
       try {
-        // Call free LLM API (using Hugging Face Inference API)
+        // Call Groq API with OpenAI-compatible endpoint
         const response = await axios.post(
-          'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2',
+          'https://api.groq.com/openai/v1/chat/completions',
           {
-            inputs: `<s>[INST] You are a study assistant. Analyze the following note and provide a structured summary with:
-1. Key Concepts (list main topics)
-2. Definitions (key terms explained)
-3. 5 Bullet Summary (concise points)
-4. One-line Exam Tip (practical advice)
-
-Note content:
-${note.content}
-
-Provide the summary in a clear, structured format. [/INST]`,
-            parameters: {
-              max_new_tokens: 500,
-              temperature: 0.7,
-              return_full_text: false
-            }
+            model: 'llama-3.3-70b-versatile',
+            messages: [
+              {
+                role: 'system',
+                content: 'You are a study assistant. Summarize notes clearly and concisely. Provide: 1) Key Concepts, 2) Important Definitions, 3) 5-point Summary, 4) One Exam Tip.'
+              },
+              {
+                role: 'user',
+                content: note.content
+              }
+            ],
+            temperature: 0.3
           },
           {
             headers: {
-              'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY || ''}`,
+              'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
               'Content-Type': 'application/json'
             },
             timeout: 30000
@@ -55,7 +52,7 @@ Provide the summary in a clear, structured format. [/INST]`,
         const endTime = Date.now();
         const latency_ms = endTime - startTime;
         
-        const summary = response.data[0]?.generated_text || response.data.generated_text || 'Summary generation failed';
+        const summary = response.data.choices[0]?.message?.content || 'Summary generation failed';
         
         res.json({
           summary,
@@ -66,19 +63,83 @@ Provide the summary in a clear, structured format. [/INST]`,
         const endTime = Date.now();
         const latency_ms = endTime - startTime;
         
-        console.error('API Error:', apiError.message);
+        console.error('Groq API Error:', apiError.response?.data || apiError.message);
         
         // Fallback response if API fails
         res.status(503).json({
           error: 'AI service unavailable',
-          message: apiError.response?.data?.error || apiError.message,
+          message: apiError.response?.data?.error?.message || apiError.message,
           latency_ms
         });
       }
     });
     
   } catch (error) {
+    console.error('Server Error:', error.message);
     res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /ai/summarize - Direct summarize endpoint (alternative)
+router.post('/summarize', async (req, res) => {
+  const { content } = req.body;
+  
+  // Validate content
+  if (!content || content.trim() === '') {
+    return res.status(400).json({ error: 'Content is required' });
+  }
+  
+  const startTime = Date.now();
+  
+  try {
+    // Call Groq API with OpenAI-compatible endpoint
+    const response = await axios.post(
+      'https://api.groq.com/openai/v1/chat/completions',
+      {
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a study assistant. Summarize notes clearly and concisely. Provide: 1) Key Concepts, 2) Important Definitions, 3) 5-point Summary, 4) One Exam Tip.'
+          },
+          {
+            role: 'user',
+            content: content
+          }
+        ],
+        temperature: 0.3
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        timeout: 30000
+      }
+    );
+    
+    const endTime = Date.now();
+    const latency_ms = endTime - startTime;
+    
+    const summary = response.data.choices[0]?.message?.content || 'Summary generation failed';
+    
+    res.json({
+      summary,
+      latency_ms
+    });
+    
+  } catch (apiError) {
+    const endTime = Date.now();
+    const latency_ms = endTime - startTime;
+    
+    console.error('Groq API Error:', apiError.response?.data || apiError.message);
+    
+    // Fallback response if API fails
+    res.status(503).json({
+      error: 'AI service unavailable',
+      message: apiError.response?.data?.error?.message || apiError.message,
+      latency_ms
+    });
   }
 });
 

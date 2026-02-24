@@ -63,7 +63,7 @@ export async function deleteNote(noteId) {
 }
 
 export async function summarizeNote(noteId, mode) {
-  const response = await fetch(`${BASE_URL}/notes/${noteId}/summarize`, {
+  const response = await fetch(`${BASE_URL}/ai/notes/${noteId}/summarize`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ mode })
