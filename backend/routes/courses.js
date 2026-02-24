@@ -59,4 +59,49 @@ router.delete('/:id', (req, res) => {
   });
 });
 
+// GET /courses/:id/notes - Get all notes for a course
+router.get('/:id/notes', (req, res) => {
+  const { id } = req.params;
+  
+  db.all('SELECT * FROM notes WHERE course_id = ?', [id], (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(rows);
+  });
+});
+
+// POST /courses/:id/notes - Create a new note for a course
+router.post('/:id/notes', validateFields(['title']), (req, res) => {
+  const { id } = req.params;
+  const { title, content } = req.body;
+  
+  // Validate that course exists
+  db.get('SELECT id FROM courses WHERE id = ?', [id], (err, course) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
+    
+    // Create the note
+    db.run(
+      'INSERT INTO notes (course_id, title, content) VALUES (?, ?, ?)',
+      [id, title, content || ''],
+      function(err) {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
+        res.status(201).json({ 
+          id: this.lastID, 
+          course_id: parseInt(id), 
+          title, 
+          content: content || '' 
+        });
+      }
+    );
+  });
+});
+
 module.exports = router;

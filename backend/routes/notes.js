@@ -3,59 +3,29 @@ const router = express.Router();
 const db = require('../db');
 const { validateFields } = require('../middleware/validation');
 
-// GET /courses/:id/notes - Get all notes for a course
-router.get('/courses/:id/notes', (req, res) => {
+// GET /notes/:id - Get a single note by id
+router.get('/:id', (req, res) => {
   const { id } = req.params;
   
-  db.all('SELECT * FROM notes WHERE course_id = ?', [id], (err, rows) => {
+  db.get('SELECT * FROM notes WHERE id = ?', [id], (err, row) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
-    res.json(rows);
+    if (!row) {
+      return res.status(404).json({ error: 'Note not found' });
+    }
+    res.json(row);
   });
 });
 
-// POST /courses/:id/notes - Create a new note for a course
-router.post('/courses/:id/notes', validateFields(['title']), (req, res) => {
+// PUT /notes/:id - Update a note
+router.put('/:id', validateFields(['title']), (req, res) => {
   const { id } = req.params;
-  const { title, content } = req.body;
-  
-  // Validate that course exists
-  db.get('SELECT id FROM courses WHERE id = ?', [id], (err, course) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    if (!course) {
-      return res.status(404).json({ error: 'Course not found' });
-    }
-    
-    // Create the note
-    db.run(
-      'INSERT INTO notes (course_id, title, content) VALUES (?, ?, ?)',
-      [id, title, content || ''],
-      function(err) {
-        if (err) {
-          return res.status(500).json({ error: err.message });
-        }
-        res.status(201).json({ 
-          id: this.lastID, 
-          course_id: parseInt(id), 
-          title, 
-          content: content || '' 
-        });
-      }
-    );
-  });
-});
-
-// PUT /notes/:noteId - Update a note
-router.put('/notes/:noteId', validateFields(['title']), (req, res) => {
-  const { noteId } = req.params;
   const { title, content } = req.body;
   
   db.run(
     'UPDATE notes SET title = ?, content = ? WHERE id = ?',
-    [title, content || '', noteId],
+    [title, content || '', id],
     function(err) {
       if (err) {
         return res.status(500).json({ error: err.message });
@@ -63,16 +33,16 @@ router.put('/notes/:noteId', validateFields(['title']), (req, res) => {
       if (this.changes === 0) {
         return res.status(404).json({ error: 'Note not found' });
       }
-      res.json({ id: parseInt(noteId), title, content: content || '' });
+      res.json({ id: parseInt(id), title, content: content || '' });
     }
   );
 });
 
-// DELETE /notes/:noteId - Delete a note
-router.delete('/notes/:noteId', (req, res) => {
-  const { noteId } = req.params;
+// DELETE /notes/:id - Delete a note
+router.delete('/:id', (req, res) => {
+  const { id } = req.params;
   
-  db.run('DELETE FROM notes WHERE id = ?', [noteId], function(err) {
+  db.run('DELETE FROM notes WHERE id = ?', [id], function(err) {
     if (err) {
       return res.status(500).json({ error: err.message });
     }

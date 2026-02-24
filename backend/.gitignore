@@ -1,3 +1,4 @@
 node_modules/
-studybuddy.db
 .env
+.vscode/
+dist/

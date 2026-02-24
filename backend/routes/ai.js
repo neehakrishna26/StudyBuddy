@@ -3,7 +3,7 @@ const router = express.Router();
 const axios = require('axios');
 const db = require('../db');
 
-// POST /notes/:noteId/summarize - Summarize note content using AI
+// POST /ai/notes/:noteId/summarize - Summarize note content using AI
 router.post('/notes/:noteId/summarize', async (req, res) => {
   const { noteId } = req.params;
   

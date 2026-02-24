@@ -11,10 +11,10 @@ app.use(express.json());
 
 // Routes
 app.use('/courses', require('./routes/courses'));
-app.use('/', require('./routes/notes'));
-app.use('/', require('./routes/ai'));
+app.use('/notes', require('./routes/notes'));
+app.use('/ai', require('./routes/ai'));
 
-// Health check route
+// Health check
 app.get('/', (req, res) => {
   res.send('StudyBuddy API running');
 });
