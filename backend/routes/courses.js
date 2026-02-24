@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { validateFields } = require('../middleware/validation');
 
 // GET /courses - List all courses
 router.get('/', (req, res) => {
@@ -13,12 +14,8 @@ router.get('/', (req, res) => {
 });
 
 // POST /courses - Create new course
-router.post('/', (req, res) => {
+router.post('/', validateFields(['title', 'user_id']), (req, res) => {
   const { title, user_id } = req.body;
-  
-  if (!title || !user_id) {
-    return res.status(400).json({ error: 'Title and user_id are required' });
-  }
 
   db.run(
     'INSERT INTO courses (title, user_id) VALUES (?, ?)',

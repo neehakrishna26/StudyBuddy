@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { validateFields } = require('../middleware/validation');
 
 // GET /courses/:id/notes - Get all notes for a course
 router.get('/courses/:id/notes', (req, res) => {
@@ -15,13 +16,9 @@ router.get('/courses/:id/notes', (req, res) => {
 });
 
 // POST /courses/:id/notes - Create a new note for a course
-router.post('/courses/:id/notes', (req, res) => {
+router.post('/courses/:id/notes', validateFields(['title']), (req, res) => {
   const { id } = req.params;
   const { title, content } = req.body;
-  
-  if (!title) {
-    return res.status(400).json({ error: 'Title is required' });
-  }
   
   // Validate that course exists
   db.get('SELECT id FROM courses WHERE id = ?', [id], (err, course) => {
@@ -52,13 +49,9 @@ router.post('/courses/:id/notes', (req, res) => {
 });
 
 // PUT /notes/:noteId - Update a note
-router.put('/notes/:noteId', (req, res) => {
+router.put('/notes/:noteId', validateFields(['title']), (req, res) => {
   const { noteId } = req.params;
   const { title, content } = req.body;
-  
-  if (!title) {
-    return res.status(400).json({ error: 'Title is required' });
-  }
   
   db.run(
     'UPDATE notes SET title = ?, content = ? WHERE id = ?',
