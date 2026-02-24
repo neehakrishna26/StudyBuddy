@@ -11,7 +11,7 @@ export default function Landing() {
       <div className="relative z-10">
         {/* Navbar */}
         <nav className="border-b border-gray-200 dark:border-white/5 bg-white/80 dark:bg-slate-900/30 backdrop-blur-xl transition-colors duration-300">
-          <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+          <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between text-gray-900 dark:text-white">
             <div className="flex items-center">
               <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">StudyBuddy</h1>
             </div>
@@ -19,7 +19,7 @@ export default function Landing() {
               <ThemeToggle />
               <Link
                 to="/login"
-                className="text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-slate-100 px-5 py-2.5 rounded-xl transition-colors"
+                className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-5 py-2.5 rounded-xl transition-colors"
               >
                 Sign In
               </Link>

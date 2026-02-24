@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getNote, updateNote, summarizeNote } from '../services/api';
+import { getNote, updateNote, summarizeNote, getCourse } from '../services/api';
 import ReactMarkdown from 'react-markdown';
 
 export default function NoteEditor() {
@@ -15,6 +15,8 @@ export default function NoteEditor() {
   const [summarizing, setSummarizing] = useState(false);
   const [summary, setSummary] = useState(null);
   const [latency, setLatency] = useState(null);
+  const [courseId, setCourseId] = useState(null);
+  const [courseName, setCourseName] = useState('');
 
   useEffect(() => {
     loadNote();
@@ -26,6 +28,14 @@ export default function NoteEditor() {
       const note = await getNote(noteId);
       setTitle(note.title);
       setContent(note.content || '');
+      setCourseId(note.course_id);
+      
+      // Fetch course name for breadcrumb
+      if (note.course_id) {
+        const course = await getCourse(note.course_id);
+        setCourseName(course.title);
+      }
+      
       setError(null);
     } catch (err) {
       setError(err.message);
@@ -78,7 +88,32 @@ export default function NoteEditor() {
         <span>←</span> Back to Dashboard
       </Link>
 
-      <div className="mb-10 mt-8">
+      {/* Breadcrumb Navigation */}
+      <div className="mb-4 mt-8">
+        <nav className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+          <Link 
+            to="/dashboard" 
+            className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          >
+            Dashboard
+          </Link>
+          <span className="mx-2">&gt;</span>
+          {courseId && courseName && (
+            <>
+              <Link 
+                to={`/courses/${courseId}`}
+                className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              >
+                {courseName}
+              </Link>
+              <span className="mx-2">&gt;</span>
+            </>
+          )}
+          <span className="text-gray-800 dark:text-gray-200">{title || 'Note'}</span>
+        </nav>
+      </div>
+
+      <div className="mb-10">
         <h2 className="text-4xl font-bold text-gray-900 dark:text-slate-100 mb-3 transition-colors duration-300">Edit Note</h2>
         <p className="text-gray-600 dark:text-slate-400 text-lg transition-colors duration-300">Edit your note and generate AI summaries</p>
       </div>
@@ -131,11 +166,11 @@ export default function NoteEditor() {
         <div className="relative bg-white dark:bg-slate-900/70 border border-gray-200 dark:border-white/5 rounded-2xl p-8 shadow-lg dark:shadow-xl transition-colors duration-300">
           <div className="flex items-center gap-3 mb-8">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/10">
-              <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-blue-500 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-100 transition-colors duration-300">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-200 transition-colors duration-300">
               AI Summary
             </h3>
           </div>
@@ -175,7 +210,7 @@ export default function NoteEditor() {
 
           {summary && !summarizing && (
             <div className="bg-gray-50 dark:bg-slate-800/40 border border-gray-200 dark:border-white/5 rounded-xl p-8 shadow-inner transition-colors duration-300">
-              <div className="prose dark:prose-invert prose-slate max-w-none prose-headings:text-gray-900 dark:prose-headings:text-slate-100 prose-p:text-gray-800 dark:prose-p:text-slate-200 prose-strong:text-gray-900 dark:prose-strong:text-slate-100 prose-code:text-blue-600 dark:prose-code:text-blue-300 prose-code:bg-blue-50 dark:prose-code:bg-slate-900/60 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-pre:bg-gray-100 dark:prose-pre:bg-slate-950/60 prose-pre:border prose-pre:border-gray-200 dark:prose-pre:border-white/5 prose-li:text-gray-800 dark:prose-li:text-slate-200 prose-ul:text-gray-800 dark:prose-ul:text-slate-200 prose-ol:text-gray-800 dark:prose-ol:text-slate-200">
+              <div className="prose dark:prose-invert prose-slate max-w-none prose-headings:text-gray-900 dark:prose-headings:text-gray-200 prose-p:text-gray-800 dark:prose-p:text-gray-200 prose-strong:text-gray-900 dark:prose-strong:text-gray-100 prose-code:text-blue-600 dark:prose-code:text-blue-300 prose-code:bg-blue-50 dark:prose-code:bg-slate-900/60 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-pre:bg-gray-100 dark:prose-pre:bg-slate-950/60 prose-pre:border prose-pre:border-gray-200 dark:prose-pre:border-white/5 prose-li:text-gray-800 dark:prose-li:text-gray-200 prose-ul:text-gray-800 dark:prose-ul:text-gray-200 prose-ol:text-gray-800 dark:prose-ol:text-gray-200">
                 <ReactMarkdown>{summary}</ReactMarkdown>
               </div>
             </div>

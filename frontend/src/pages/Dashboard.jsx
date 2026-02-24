@@ -102,7 +102,7 @@ export default function Dashboard() {
     <div className="animate-fadeIn">
       {/* Premium Header */}
       <div className="mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight">
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-200 mb-2 tracking-tight">
           {getGreeting()}{user?.name ? `, ${user.name}` : ''} 👋
         </h1>
         <p className="text-gray-500 dark:text-gray-400 text-lg mb-6">
@@ -114,19 +114,19 @@ export default function Dashboard() {
           <div className="bg-white dark:bg-slate-900/60 border border-gray-200 dark:border-white/5 rounded-xl px-4 py-2.5 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5">
             <div className="flex items-center gap-2">
               <span className="text-lg">📚</span>
-              <span className="text-sm font-semibold text-gray-900 dark:text-white">{courses.length} Courses</span>
+              <span className="text-sm font-semibold text-gray-900 dark:text-gray-200">{courses.length} Courses</span>
             </div>
           </div>
           <div className="bg-white dark:bg-slate-900/60 border border-gray-200 dark:border-white/5 rounded-xl px-4 py-2.5 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5">
             <div className="flex items-center gap-2">
               <span className="text-lg">📝</span>
-              <span className="text-sm font-semibold text-gray-900 dark:text-white">Notes</span>
+              <span className="text-sm font-semibold text-gray-900 dark:text-gray-200">Notes</span>
             </div>
           </div>
           <div className="bg-white dark:bg-slate-900/60 border border-gray-200 dark:border-white/5 rounded-xl px-4 py-2.5 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5">
             <div className="flex items-center gap-2">
               <span className="text-lg">⚡</span>
-              <span className="text-sm font-semibold text-gray-900 dark:text-white">AI Summaries</span>
+              <span className="text-sm font-semibold text-gray-900 dark:text-gray-200">AI Summaries</span>
             </div>
           </div>
         </div>
@@ -139,7 +139,7 @@ export default function Dashboard() {
       )}
       
       <div className="mb-10">
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 tracking-tight">Create New Course</h3>
+        <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-200 mb-4 tracking-tight">Create New Course</h3>
         <form onSubmit={handleCreateCourse} className="flex gap-3">
           <input
             type="text"
@@ -160,7 +160,7 @@ export default function Dashboard() {
       </div>
 
       <div>
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 tracking-tight">Your Courses</h3>
+        <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-200 mb-6 tracking-tight">Your Courses</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {courses.length === 0 ? (
           <div className="col-span-full text-center py-16">

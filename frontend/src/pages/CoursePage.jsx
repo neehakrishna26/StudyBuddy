@@ -77,7 +77,21 @@ export default function CoursePage() {
         <span>←</span> Back to Dashboard
       </Link>
 
-      <div className="mb-8 mt-6">
+      {/* Breadcrumb Navigation */}
+      <div className="mb-4 mt-6">
+        <nav className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+          <Link 
+            to="/dashboard" 
+            className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          >
+            Dashboard
+          </Link>
+          <span className="mx-2">&gt;</span>
+          <span className="text-gray-800 dark:text-gray-200">{courseName}</span>
+        </nav>
+      </div>
+
+      <div className="mb-8">
         <h2 className="text-3xl font-bold text-gray-900 dark:text-slate-100 mb-2 transition-colors duration-300">{courseName}</h2>
         <p className="text-gray-600 dark:text-slate-400 transition-colors duration-300">Manage your course notes</p>
       </div>
