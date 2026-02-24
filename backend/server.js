@@ -11,16 +11,35 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use('/courses', require('./routes/courses'));
-app.use('/notes', require('./routes/notes'));
-app.use('/ai', require('./routes/ai'));
+const authRoutes = require('./routes/auth');
+const coursesRoutes = require('./routes/courses');
+const notesRoutes = require('./routes/notes');
+const aiRoutes = require('./routes/ai');
+
+app.use('/auth', authRoutes);
+app.use('/courses', coursesRoutes);
+app.use('/notes', notesRoutes);
+app.use('/ai', aiRoutes);
 
 // Health check
 app.get('/', (req, res) => {
   res.send('StudyBuddy API running');
 });
 
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found' });
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log('Available routes:');
+  console.log('  POST /auth/register');
+  console.log('  POST /auth/login');
+  console.log('  GET  /auth/me');
+  console.log('  GET  /courses');
+  console.log('  POST /courses');
+  console.log('  GET  /notes/:id');
+  console.log('  POST /ai/notes/:noteId/summarize');
 });

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { getCourse, getNotes, createNote } from '../services/api';
+import { getCourse, getNotes, createNote, deleteNote } from '../services/api';
 
 export default function CoursePage() {
   const { courseId } = useParams();
@@ -47,6 +47,20 @@ export default function CoursePage() {
       setError(err.message);
     } finally {
       setCreating(false);
+    }
+  }
+
+  async function handleDeleteNote(noteId, noteTitle) {
+    if (!window.confirm(`Are you sure you want to delete "${noteTitle}"?`)) {
+      return;
+    }
+
+    try {
+      await deleteNote(noteId);
+      setNotes(notes.filter(n => n.id !== noteId));
+      setError(null);
+    } catch (err) {
+      setError(err.message);
     }
   }
 
@@ -103,15 +117,30 @@ export default function CoursePage() {
           notes.map((note) => (
             <div
               key={note.id}
-              onClick={() => navigate(`/notes/${note.id}`)}
-              className="bg-slate-900 border border-slate-800 rounded-xl p-6 cursor-pointer hover:border-blue-500 transition-all duration-200"
+              className="bg-slate-900 border border-slate-800 rounded-xl p-6 hover:border-blue-500 transition-all duration-200"
             >
-              <h3 className="text-xl font-semibold text-slate-100 mb-2">
-                {note.title}
-              </h3>
-              <p className="text-sm text-slate-400">
-                Created {new Date(note.created_at).toLocaleDateString()}
-              </p>
+              <div 
+                onClick={() => navigate(`/notes/${note.id}`)}
+                className="cursor-pointer mb-3"
+              >
+                <h3 className="text-xl font-semibold text-slate-100 mb-2">
+                  {note.title}
+                </h3>
+                <p className="text-sm text-slate-400">
+                  Created {new Date(note.created_at).toLocaleDateString()}
+                </p>
+              </div>
+              <div className="pt-3 border-t border-slate-800">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteNote(note.id, note.title);
+                  }}
+                  className="w-full bg-red-900/20 hover:bg-red-900/30 text-red-400 text-sm px-3 py-1.5 rounded-lg transition-all"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           ))
         )}

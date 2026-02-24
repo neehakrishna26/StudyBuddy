@@ -31,14 +31,15 @@ router.post('/notes/:noteId/summarize', async (req, res) => {
             messages: [
               {
                 role: 'system',
-                content: 'You are a study assistant. Summarize notes clearly and concisely. Provide: 1) Key Concepts, 2) Important Definitions, 3) 5-point Summary, 4) One Exam Tip.'
+                content: 'You are a professional note summarizer. Create ONLY a concise bullet-point summary. Rules: 3-5 bullets maximum, each bullet is one short sentence, no headings, no markdown formatting, no exam tips, no explanations, maximum 120 words total, professional tone. Return ONLY the bullet points, nothing else.'
               },
               {
                 role: 'user',
-                content: note.content
+                content: `Summarize this note into 3-5 concise bullet points:\n\n${note.content}`
               }
             ],
-            temperature: 0.3
+            temperature: 0.3,
+            max_tokens: 200
           },
           {
             headers: {
@@ -100,14 +101,15 @@ router.post('/summarize', async (req, res) => {
         messages: [
           {
             role: 'system',
-            content: 'You are a study assistant. Summarize notes clearly and concisely. Provide: 1) Key Concepts, 2) Important Definitions, 3) 5-point Summary, 4) One Exam Tip.'
+            content: 'You are a professional note summarizer. Create ONLY a concise bullet-point summary. Rules: 3-5 bullets maximum, each bullet is one short sentence, no headings, no markdown formatting, no exam tips, no explanations, maximum 120 words total, professional tone. Return ONLY the bullet points, nothing else.'
           },
           {
             role: 'user',
-            content: content
+            content: `Summarize this note into 3-5 concise bullet points:\n\n${content}`
           }
         ],
-        temperature: 0.3
+        temperature: 0.3,
+        max_tokens: 200
       },
       {
         headers: {

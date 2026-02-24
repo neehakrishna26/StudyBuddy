@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCourses, createCourse } from '../services/api';
+import { getCourses, createCourse, updateCourse, deleteCourse } from '../services/api';
 
 export default function Dashboard() {
   const [courses, setCourses] = useState([]);
@@ -8,6 +8,8 @@ export default function Dashboard() {
   const [error, setError] = useState(null);
   const [newCourseTitle, setNewCourseTitle] = useState('');
   const [creating, setCreating] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [editTitle, setEditTitle] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -42,6 +44,44 @@ export default function Dashboard() {
     } finally {
       setCreating(false);
     }
+  }
+
+  async function handleUpdateCourse(courseId) {
+    if (!editTitle.trim()) return;
+
+    try {
+      await updateCourse(courseId, editTitle);
+      setCourses(courses.map(c => c.id === courseId ? { ...c, title: editTitle } : c));
+      setEditingId(null);
+      setEditTitle('');
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function handleDeleteCourse(courseId, courseTitle) {
+    if (!window.confirm(`Are you sure you want to delete "${courseTitle}"? This will also delete all associated notes.`)) {
+      return;
+    }
+
+    try {
+      await deleteCourse(courseId);
+      setCourses(courses.filter(c => c.id !== courseId));
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  function startEdit(course) {
+    setEditingId(course.id);
+    setEditTitle(course.title);
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setEditTitle('');
   }
 
   if (loading) {
@@ -90,15 +130,67 @@ export default function Dashboard() {
           courses.map((course) => (
             <div
               key={course.id}
-              onClick={() => navigate(`/courses/${course.id}`)}
-              className="bg-slate-900 border border-slate-800 rounded-xl p-6 cursor-pointer hover:border-blue-500 transition-all duration-200"
+              className="bg-slate-900 border border-slate-800 rounded-xl p-6 hover:border-blue-500 transition-all duration-200"
             >
-              <h3 className="text-xl font-semibold text-slate-100 mb-2">
-                {course.title}
-              </h3>
-              <p className="text-sm text-slate-400">
-                Created {new Date(course.created_at).toLocaleDateString()}
-              </p>
+              {editingId === course.id ? (
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    className="w-full bg-slate-800 border border-slate-700 text-slate-100 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    autoFocus
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleUpdateCourse(course.id)}
+                      className="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-sm px-3 py-1.5 rounded-lg transition-all"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={cancelEdit}
+                      className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm px-3 py-1.5 rounded-lg transition-all"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div 
+                    onClick={() => navigate(`/courses/${course.id}`)}
+                    className="cursor-pointer mb-3"
+                  >
+                    <h3 className="text-xl font-semibold text-slate-100 mb-2">
+                      {course.title}
+                    </h3>
+                    <p className="text-sm text-slate-400">
+                      Created {new Date(course.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="flex gap-2 pt-3 border-t border-slate-800">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        startEdit(course);
+                      }}
+                      className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm px-3 py-1.5 rounded-lg transition-all"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteCourse(course.id, course.title);
+                      }}
+                      className="flex-1 bg-red-900/20 hover:bg-red-900/30 text-red-400 text-sm px-3 py-1.5 rounded-lg transition-all"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           ))
         )}

@@ -15,12 +15,14 @@ db.run('PRAGMA foreign_keys = ON');
 
 // Create tables
 db.serialize(() => {
-  // Users table
+  // Users table with authentication
   db.run(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
-      email TEXT UNIQUE NOT NULL
+      email TEXT UNIQUE NOT NULL,
+      password TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
 
@@ -46,6 +48,10 @@ db.serialize(() => {
       FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
     )
   `);
+  
+  // Create indexes for better performance
+  db.run('CREATE INDEX IF NOT EXISTS idx_courses_user_id ON courses(user_id)');
+  db.run('CREATE INDEX IF NOT EXISTS idx_notes_course_id ON notes(course_id)');
 });
 
 module.exports = db;
