@@ -29,7 +29,9 @@ export default function Login() {
     <div className="min-h-screen bg-slate-950 flex items-center justify-center px-6">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-slate-100 mb-2">StudyBuddy</h1>
+          <Link to="/" className="inline-block">
+            <h1 className="text-4xl font-bold text-slate-100 mb-2 hover:text-blue-400 transition-colors">StudyBuddy</h1>
+          </Link>
           <p className="text-slate-400">Sign in to your account</p>
         </div>
 

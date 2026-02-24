@@ -1,6 +1,7 @@
 import { Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
@@ -9,21 +10,22 @@ import NoteEditor from './pages/NoteEditor';
 
 function AppContent() {
   const location = useLocation();
-  const { isAuthenticated, logout, user } = useAuth();
+  const { logout, user } = useAuth();
 
-  // Don't show sidebar on login/register pages
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
+  // Public pages without sidebar
+  const isPublicPage = location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register';
 
-  if (isAuthPage) {
+  if (isPublicPage) {
     return (
       <Routes>
+        <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     );
   }
 
+  // Protected pages with sidebar
   return (
     <div className="min-h-screen flex bg-slate-950">
       {/* Sidebar */}
@@ -33,9 +35,9 @@ function AppContent() {
           
           <nav className="space-y-2">
             <Link
-              to="/"
+              to="/dashboard"
               className={`block px-4 py-2.5 rounded-lg transition-all ${
-                location.pathname === '/'
+                location.pathname === '/dashboard'
                   ? 'bg-blue-600 text-white'
                   : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'
               }`}
@@ -43,7 +45,7 @@ function AppContent() {
               Dashboard
             </Link>
             <Link
-              to="/"
+              to="/dashboard"
               className={`block px-4 py-2.5 rounded-lg transition-all ${
                 location.pathname.startsWith('/courses')
                   ? 'bg-blue-600 text-white'
@@ -74,7 +76,7 @@ function AppContent() {
       <main className="flex-1 ml-64">
         <div className="max-w-6xl mx-auto p-10">
           <Routes>
-            <Route path="/" element={
+            <Route path="/dashboard" element={
               <ProtectedRoute>
                 <Dashboard />
               </ProtectedRoute>
@@ -89,7 +91,7 @@ function AppContent() {
                 <NoteEditor />
               </ProtectedRoute>
             } />
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </div>
       </main>
