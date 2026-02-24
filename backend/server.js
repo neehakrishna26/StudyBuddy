@@ -9,6 +9,11 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+// Routes
+app.use('/courses', require('./routes/courses'));
+app.use('/', require('./routes/notes'));
+app.use('/', require('./routes/ai'));
+
 // Health check route
 app.get('/', (req, res) => {
   res.send('StudyBuddy API running');
